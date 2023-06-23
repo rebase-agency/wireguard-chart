@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wireguard.fullname" . }}
+  labels:
+    {{- include "wireguard.labels" . | nindent 4 }}
+  annotations:
+    {{- include "wireguard.serviceAnnotations" . | nindent 4 }}
+spec:
+  type: {{ .Values.wireguard.service.type }}
+  ports:
+    - port: {{ .Values.wireguard.service.port }}
+      targetPort: 51820
+      protocol: UDP
+      name: wireguard
+    {{- if contains .Values.wireguard.service.provider "DigitalOcean"}}
+    - port: {{ .Values.echoServer.service.port }}
+      targetPort: {{ .Values.echoServer.service.port }}
+      protocol: TCP
+      name: health
+    {{- end }}
+  selector:
+    {{- include "wireguard.selectorLabels" . | nindent 4 }}

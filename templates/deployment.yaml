@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wireguard.fullname" . }}
+  labels:
+    {{- include "wireguard.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "wireguard.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- if .Values.podAnnotations }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- else }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- end }}
+      labels:
+        {{- include "wireguard.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "wireguard.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: sysctls
+          image: busybox
+          command:
+            - sh
+            - -c
+            - sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv4.conf.all.forwarding=1
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.wireguard.image.repository }}:{{ .Values.wireguard.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.wireguard.image.pullPolicy }}
+          env:
+            {{- toYaml .Values.wireguard.env | nindent 12 }}
+          command:
+            - sh
+            - -c
+            - echo "Public key '$(wg pubkey < /etc/wireguard/privatekey)'" && /entrypoint.sh
+          ports:
+            - name: wireguard
+              containerPort: 51820
+              protocol: UDP
+          volumeMounts:
+            - name: wireguard-config
+              mountPath: /etc/wireguard/wg0.conf
+              subPath: wg0.conf
+            - name: wireguard-private-key
+              mountPath: /etc/wireguard/privatekey
+              subPath: privatekey
+          resources:
+            {{- toYaml .Values.wireguard.resources | nindent 12 }}
+        - name: echo-server
+          image: "{{ .Values.echoServer.image.repository }}:{{ .Values.echoServer.image.tag }}"
+          imagePullPolicy: {{ .Values.echoServer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.echoServer.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.echoServer.service.port | quote }}
+          resources:
+            {{- toYaml .Values.echoServer.resources | nindent 12 }}
+      volumes:
+        - name: wireguard-config
+          configMap:
+            name: wireguard-config
+        - name: wireguard-private-key
+          secret:
+            secretName: {{ .Values.wireguard.privateKey.secret.name }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

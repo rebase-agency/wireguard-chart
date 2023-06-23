@@ -1,0 +1,21 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: wireguard-config
+  labels:
+    {{- include "wireguard.labels" . | nindent 4 }}
+data:
+  wg0.conf: |
+    [Interface]
+    Address = {{ include "wireguard.serverAddressSubnet" . }}
+    ListenPort = {{ .Values.wireguard.service.port }}
+    PostUp = wg set wg0 private-key /etc/wireguard/privatekey && iptables -t nat -A POSTROUTING -s {{ .Values.wireguard.subnet }} -o eth0 -j MASQUERADE
+    PostDown = iptables -t nat -D POSTROUTING -s {{ .Values.wireguard.subnet }} -o eth0 -j MASQUERADE
+
+    {{- range $key, $value := .Values.wireguard.peers }}
+
+    [Peer]
+    PublicKey = {{ $value.publicKey }}
+    AllowedIPs = {{ $value.allowedIPs }}
+    PersistentKeepalive = {{ $value.persistentKeepalive }}
+    {{- end }}

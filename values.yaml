@@ -1,0 +1,136 @@
+replicaCount: 1
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+#   fsGroup: 2000
+
+securityContext:
+  capabilities:
+    add:
+      - NET_ADMIN
+  privileged: true
+
+networkPolicy:
+  # Specifies whether a network policy should be created
+  create: true
+  annotations: {}
+  # The name of the network policy to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  # Policy types
+  policyTypes:
+    # - Ingress
+    - Egress
+  # Policies for ingress and egress traffic.
+  # By default, we allow all ingress traffic and deny all egress traffic.
+  policies:
+   # ingress:
+     # - {}
+    egress: []
+
+wireguard:
+  image:
+    repository: masipcat/wireguard-go
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  service:
+    type: LoadBalancer
+    port: 51820
+    # Specifies the cloud provider to set the appropriate predefined load balancer annotations (optional).
+    # At the moment, only DigitalOcean is supported. More providers to come.
+    provider: "DigitalOcean"
+    # Additional service annotations
+    annotations: {}
+
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: "100m"
+    limits:
+      memory: 256Mi
+      cpu: "1"
+
+  # WireGuard environment variables
+  env:
+    - name: LOG_LEVEL
+      value: info
+
+  # Secret containing the WireGuard private key
+  privateKey:
+    secret:
+      name: wireguard-private-key
+
+  # Subnet mask used for the WireGuard interface
+  subnet: "10.44.0.0/16"
+
+  # List of peers
+  peers:
+   # - publicKey: "and3Fer174+pKVx8d0wCeVRf9MScXW3MypIAp4KLZWE="
+   #   allowedIPs: "10.44.0.2/32"
+   #   persistentKeepalive: 25
+
+echoServer:
+  # Echo server is used to mock the TCP health check port for the load balancers which don't support UDP health checks
+  enabled: true
+
+  image:
+    repository: ealen/echo-server
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  service:
+    port: 80
+
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: "100m"
+    limits:
+      memory: 256Mi
+      cpu: "100m"
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
