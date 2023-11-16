@@ -79,6 +79,9 @@ wireguard:
   # Subnet mask used for the WireGuard interface
   subnet: "10.44.0.0/16"
 
+  # MTU for the WireGuard interface
+  mtu: 1400
+
   # List of peers
   peers:
    # - publicKey: "and3Fer174+pKVx8d0wCeVRf9MScXW3MypIAp4KLZWE="

@@ -9,6 +9,7 @@ data:
     [Interface]
     Address = {{ include "wireguard.serverAddressSubnet" . }}
     ListenPort = {{ .Values.wireguard.service.port }}
+    MTU = {{ .Values.wireguard.mtu }}
     PostUp = wg set wg0 private-key /etc/wireguard/privatekey && iptables -t nat -A POSTROUTING -s {{ .Values.wireguard.subnet }} -o eth0 -j MASQUERADE
     PostDown = iptables -t nat -D POSTROUTING -s {{ .Values.wireguard.subnet }} -o eth0 -j MASQUERADE
 
