@@ -72,11 +72,19 @@ spec:
           imagePullPolicy: {{ .Values.echoServer.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.echoServer.service.port }}
+              containerPort: {{ .Values.echoServer.container.port }}
               protocol: TCP
+          {{- if .Values.echoServer.container.args }}
+          args:
+            {{- toYaml .Values.echoServer.container.args | nindent 12 }}
+          {{- end }}
+          {{- if .Values.echoServer.container.command }}
+          command:
+              {{- toYaml .Values.echoServer.container.command | nindent 12 }}
+          {{- end }}
           env:
             - name: PORT
-              value: {{ .Values.echoServer.service.port | quote }}
+              value: {{ .Values.echoServer.container.port | quote }}
           resources:
             {{- toYaml .Values.echoServer.resources | nindent 12 }}
       volumes:

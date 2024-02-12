@@ -97,6 +97,11 @@ echoServer:
     pullPolicy: IfNotPresent
     tag: "latest"
 
+  container:
+    port: 5678
+    command: []
+    args: ["-text=OK"]
+
   service:
     port: 80
 

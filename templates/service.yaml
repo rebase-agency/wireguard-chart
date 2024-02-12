@@ -15,7 +15,7 @@ spec:
       name: wireguard
     {{- if contains .Values.wireguard.service.provider "DigitalOcean"}}
     - port: {{ .Values.echoServer.service.port }}
-      targetPort: {{ .Values.echoServer.service.port }}
+      targetPort: {{ .Values.echoServer.container.port }}
       protocol: TCP
       name: health
     {{- end }}
