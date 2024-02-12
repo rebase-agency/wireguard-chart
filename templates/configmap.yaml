@@ -17,6 +17,9 @@ data:
 
     [Peer]
     PublicKey = {{ $value.publicKey }}
+    {{- if $value.endpoint }}
+    Endpoint = {{ $value.endpoint }}
+    {{- end }}
     AllowedIPs = {{ $value.allowedIPs }}
     PersistentKeepalive = {{ $value.persistentKeepalive }}
     {{- end }}

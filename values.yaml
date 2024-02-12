@@ -85,6 +85,7 @@ wireguard:
   # List of peers
   peers:
    # - publicKey: "and3Fer174+pKVx8d0wCeVRf9MScXW3MypIAp4KLZWE="
+   #   endpoint: 147.225.27.29:51821
    #   allowedIPs: "10.44.0.2/32"
    #   persistentKeepalive: 25
 
