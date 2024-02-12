@@ -102,6 +102,7 @@ echoServer:
     port: 5678
     command: []
     args: ["-text=OK"]
+    env: []
 
   service:
     port: 80

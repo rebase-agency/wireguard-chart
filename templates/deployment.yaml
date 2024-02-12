@@ -83,8 +83,7 @@ spec:
               {{- toYaml .Values.echoServer.container.command | nindent 12 }}
           {{- end }}
           env:
-            - name: PORT
-              value: {{ .Values.echoServer.container.port | quote }}
+            {{- toYaml .Values.echoServer.container.env | nindent 12 }}
           resources:
             {{- toYaml .Values.echoServer.resources | nindent 12 }}
       volumes:
