@@ -93,7 +93,7 @@ echoServer:
   enabled: true
 
   image:
-    repository: ealen/echo-server
+    repository: hashicorp/http-echo
     pullPolicy: IfNotPresent
     tag: "latest"
 
