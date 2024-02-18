@@ -91,8 +91,8 @@ Create wireguard service annotations
 {{- if and (eq .Values.wireguard.service.type "LoadBalancer") (contains "DigitalOcean" .Values.wireguard.service.provider) }}
 {{- include "wireguard.doLoadBalancerAnnotations" . }}
 {{- end }}
-{{- with .Values.serviceAccount.annotations }}
-{{- toYaml . | nindent 4 }}
+{{- with .Values.wireguard.service.annotations }}
+{{- toYaml . | nindent 0 }}
 {{- end }}
 {{- end }}
 
