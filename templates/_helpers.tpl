@@ -82,6 +82,7 @@ service.beta.kubernetes.io/do-loadbalancer-healthcheck-port: {{ .Values.echoServ
 service.beta.kubernetes.io/do-loadbalancer-healthcheck-protocol: 'tcp'
 service.beta.kubernetes.io/do-loadbalancer-healthcheck-response-timeout-seconds: '4'
 service.beta.kubernetes.io/do-loadbalancer-healthcheck-unhealthy-threshold: '3'
+service.beta.kubernetes.io/do-loadbalancer-override-health-check: 'true'
 {{- end }}
 
 {{/*
